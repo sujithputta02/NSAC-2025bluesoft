@@ -3,6 +3,25 @@
   "devCommand": "npm run dev",
   "installCommand": "npm ci || npm install",
   "outputDirectory": "dist",
-  "framework": "vite"
+  "framework": "vite",
+  "functions": {
+    "api/index.py": {
+      "runtime": "python3.9"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/index.py"
+    },
+    {
+      "source": "/analyze",
+      "destination": "/api/index.py"
+    },
+    {
+      "source": "/proxy/(.*)",
+      "destination": "/api/index.py"
+    }
+  ]
 }
 
