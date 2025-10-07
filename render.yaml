@@ -1,0 +1,44 @@
+services:
+  - type: web
+    name: nsac-weather-api
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: oregon
+    branch: main
+    healthCheckPath: /
+    envVars:
+      - key: NASA_EARTHDATA_USERNAME
+        value: sujithputta
+      - key: NASA_EARTHDATA_PASSWORD
+        value: Nasa@12345t$
+      - key: METEOMATICS_USERNAME
+        value: kakarla_vikas
+      - key: METEOMATICS_PASSWORD
+        value: mW07QKj9y7ApKf23Ep43
+      - key: METEOMATICS_CUTOFF
+        value: 2025-10-12T23:59:59Z
+      - key: NASA_POWER_START
+        value: 19900101
+      - key: NASA_POWER_END
+        value: 20241231
+      - key: METEOMATICS_START
+        value: 1990-01-01T00:00:00Z
+      - key: METEOMATICS_END
+        value: 2024-12-31T00:00:00Z
+      - key: METEOMATICS_DUST_PARAM
+        value: aod550nm:1
+      - key: METEOMATICS_TEMP_PARAM
+        value: t_2m:C
+      - key: METEOMATICS_PRECIP_PARAM
+        value: precip_24h:mm
+      - key: METEOMATICS_WIND_PARAM
+        value: wind_speed_10m:ms
+      - key: OPENDAP_VAR_CLOUD
+        value: CLDTOT
+      - key: OPENDAP_VAR_AOD
+        value: TOTEXTTAU
+      - key: OPENDAP_VAR_SNOW
+        value: SNOWDP
+      - key: OPENMETEO_API_KEY
+        value: optional
