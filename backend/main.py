@@ -125,6 +125,41 @@ async def proxy_mapbox_reverse(latitude: float, longitude: float, limit: int = 1
             raise HTTPException(status_code=r.status_code, detail=f"Mapbox reverse failed: {r.text[:200]}")
         return r.json()
 
+# Meteomatics weather API proxy to avoid CORS issues
+@app.get("/proxy/meteomatics/{timestamp}/{params}/{coordinates}/json")
+async def proxy_meteomatics_weather(timestamp: str, params: str, coordinates: str):
+    """Proxy Meteomatics API calls to avoid CORS issues in browser"""
+    username = os.getenv("METEOMATICS_USERNAME") or os.getenv("VITE_METEOMATICS_USERNAME")
+    password = os.getenv("METEOMATICS_PASSWORD") or os.getenv("VITE_METEOMATICS_PASSWORD")
+    
+    if not username or not password:
+        raise HTTPException(status_code=400, detail="Meteomatics credentials not configured")
+    
+    # Check if we're within the API cutoff period
+    cutoff = os.getenv("METEOMATICS_CUTOFF", "2025-10-12T23:59:59Z")
+    try:
+        cutoff_dt = datetime.fromisoformat(cutoff.replace("Z", "+00:00"))
+        if datetime.now(datetime.utc).replace(tzinfo=None) > cutoff_dt:
+            raise HTTPException(status_code=403, detail="Meteomatics API access expired")
+    except Exception:
+        pass  # Continue if cutoff parsing fails
+    
+    url = f"https://api.meteomatics.com/{timestamp}/{params}/{coordinates}/json"
+    
+    import base64
+    auth = base64.b64encode(f"{username}:{password}".encode()).decode()
+    
+    async with httpx.AsyncClient(timeout=30) as client:
+        try:
+            r = await client.get(url, headers={"Authorization": f"Basic {auth}"})
+            if r.status_code != 200:
+                raise HTTPException(status_code=r.status_code, detail=f"Meteomatics API failed: {r.text[:200]}")
+            return r.json()
+        except httpx.TimeoutException:
+            raise HTTPException(status_code=504, detail="Meteomatics API timeout")
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Meteomatics proxy error: {str(e)[:200]}")
+
 # Pydantic models
 class LocationRequest(BaseModel):
     latitude: float

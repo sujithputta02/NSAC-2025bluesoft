@@ -34,9 +34,10 @@ const WEATHER_API = {
           'precip_1h:mm',
           'weather_symbol_1h:idx'
         ].join(',');
-        const url = `https://api.meteomatics.com/${isoNow}/${params}/${lat},${lon}/json`;
-        const auth = btoa(`${username}:${password}`);
-        const resp = await fetch(url, { headers: { Authorization: `Basic ${auth}` } });
+        // Use backend proxy to avoid CORS issues
+        const BACKEND_URL = (import.meta as any).env?.VITE_BACKEND_URL || '';
+        const proxyUrl = `${BACKEND_URL}/proxy/meteomatics/${isoNow}/${params}/${lat},${lon}/json`;
+        const resp = await fetch(proxyUrl);
         if (!resp.ok) {
           if (resp.status === 400) return null;
           throw new Error(`Meteomatics error: ${resp.status}`);
