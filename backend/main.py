@@ -19,6 +19,9 @@ import xarray as xr
 # Load environment variables
 load_dotenv()
 
+# Load environment variables
+load_dotenv()
+
 # Import NASA integration
 NASA_INTEGRATION_AVAILABLE = False
 try:
